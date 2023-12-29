@@ -1,7 +1,18 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // 테스트용 더미데이터
+    // const dailyQuestions = [
+    //     "테스트용 데일리 1",
+    //     "테스트용 데일리 2",
+    //     "테스트용 데일리 3"
+    // ]
+
+    // const generalQuestions = [
+    //     "테스트용 랜덤 1",
+    //     "테스트용 랜덤 2",
+    //     "테스트용 랜덤 3"
+    // ]
 
     const dailyQuestions = [
-        "질문",
         "새해의 시작을 어떻게 맞이했나요? 올해의 목표는 무엇인가요?",
         "오늘 하루 동안 가장 기억에 남는 순간은 무엇이었나요?",
         "최근 읽은 책이나 본 영화에 대해 느낀 점은 무엇인가요?",
@@ -672,12 +683,40 @@ document.addEventListener('DOMContentLoaded', function() {
         "오늘 무엇을 하면서 즐거웠나요?"
         ];
 
+    // This object creates a new array where elements consist of one question and one boolean value
+    const dailyQuestionsWithBool = dailyQuestions.map(question => ({
+        text: question,
+        answered: false
+    }));
+    const generalQuestionsWithBool = generalQuestions.map(question => ({
+        text: question,
+        answered: false
+    }));
+
     function getRandomQuestion() {
-        const today = new Date();
-        const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-        const dailyQuestion = dailyQuestions[dayOfYear % dailyQuestions.length];
-        const generalQuestion = generalQuestions[Math.floor(Math.random() * generalQuestions.length)];
-        return Math.random() < 0.5 ? dailyQuestion : generalQuestion;
+    const today = new Date();
+    const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+
+    // Filter out the answered questions
+    const unansweredDailyQuestions = dailyQuestionsWithBool.filter(q => !q.answered);
+    const unansweredGeneralQuestions = generalQuestionsWithBool.filter(q => !q.answered);
+
+    // Select a daily or general question based on the day of the year and randomness
+    let selectedQuestion;
+    if (Math.random() < 0.5 && unansweredDailyQuestions.length > 0) {
+        selectedQuestion = unansweredDailyQuestions[dayOfYear % unansweredDailyQuestions.length];
+    } else if (unansweredGeneralQuestions.length > 0) {
+        selectedQuestion = unansweredGeneralQuestions[Math.floor(Math.random() * unansweredGeneralQuestions.length)];
+    } else {
+        // Return a message if all questions have been answered
+        return "모든 질문이 소진되었습니다";
+    }
+
+    // Mark the selected question as answered
+    selectedQuestion.answered = true;
+
+    // Return the selected question text
+    return selectedQuestion.text;
     }
 
     document.getElementById('generateQuestion').addEventListener('click', function() {
